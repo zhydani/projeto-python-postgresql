@@ -1,0 +1,33 @@
+#pip install Flask-SQLAlchemy
+
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+
+app = Flask('__name__')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:123456@localhost:5432/teste'
+db = SQLAlchemy(app)
+
+class Person(db.Model):
+    id = db.Column(db.String(120), primary_key=True)
+    firstname = db.Column(db.String(120), unique=False)
+    lastname = db.Column(db.String(120), unique=False)
+    email = db.Column(db.String(120), unique=False)
+
+    def __init__(self, firstname, lastname, email):
+        self.firstname = firstname
+        self.lastname = lastname
+        self.email = email
+
+@app.route('/insert_user', methods=['POST'])
+def insertUser():
+    newFirstName = request.form['first_name']
+    newLastName = request.form['last_name']
+    newEmail = request.form['email']
+    user = Person(newFirstName, newLastName, newEmail)
+    db.session.add(user)
+    db.session.commit()
+    return "<p>Data is updated</p>"
+
+if __name__ == '__main__':
+    app.run()
